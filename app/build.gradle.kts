@@ -34,22 +34,24 @@ android {
 }
 
 dependencies{
-    //noinspection UseTomlInstead
-    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    implementation(project(":dictionary-core"))
+
+    implementation(libs.generativeai)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation("androidx.cardview:cardview:1.0.0")
+    implementation(libs.androidx.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.google.mlkit:text-recognition:16.0.1")
-    // Markdown Rendering (Makes code look like code)
-    implementation("io.noties.markwon:core:4.6.2")
-    implementation("io.noties.markwon:syntax-highlight:4.6.2")
-    implementation("io.noties.markwon:linkify:4.6.2")
+    implementation(libs.mlkit.text)
+    implementation(libs.markwon.core)
+    implementation(libs.markwon.syntax)
+    implementation(libs.markwon.linkify)
+
 
 
 }
