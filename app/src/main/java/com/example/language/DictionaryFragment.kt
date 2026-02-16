@@ -19,11 +19,12 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 class DictionaryFragment : Fragment() {
-    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-        if (bitmap != null) {
-            recognizeTextFromImage(bitmap)
+    private val cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            if (bitmap != null) {
+                recognizeTextFromImage(bitmap)
+            }
         }
-    }
 
 
     private val engine = DictionaryEngine()
@@ -34,7 +35,11 @@ class DictionaryFragment : Fragment() {
         if (isGranted) {
             cameraLauncher.launch(null)
         } else {
-            Toast.makeText(context, "Camera permission is required for AI features", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                "Camera permission is required for AI features",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -51,7 +56,8 @@ class DictionaryFragment : Fragment() {
         view.findViewById<ImageButton>(R.id.camera_button).setOnClickListener {
             if (androidx.core.content.ContextCompat.checkSelfPermission(
                     requireContext(), android.Manifest.permission.CAMERA
-                ) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
                 cameraLauncher.launch(null)
             } else {
                 requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
@@ -65,13 +71,15 @@ class DictionaryFragment : Fragment() {
         }
 
         val rvTrending = view.findViewById<RecyclerView>(R.id.rv_ai_trending)
-        rvTrending.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        rvTrending.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         rvTrending.adapter = TileAdapter(getTrendingLibraries()) { item ->
             Toast.makeText(context, "AI Loading: ${item.title}", Toast.LENGTH_SHORT).show()
         }
 
         val rvPlaylists = view.findViewById<RecyclerView>(R.id.rv_playlists)
-        rvPlaylists.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        rvPlaylists.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         rvPlaylists.adapter = TileAdapter(getPlaylists()) { item ->
             Toast.makeText(context, "Opening Playlist: ${item.title}", Toast.LENGTH_SHORT).show()
         }
@@ -83,20 +91,20 @@ class DictionaryFragment : Fragment() {
         }
 
         val searchBar = view.findViewById<EditText>(R.id.search_bar)
+        val definitionView = view.findViewById<android.widget.TextView>(R.id.tv_definition)
 
         searchBar.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
-                val query = searchBar.text.toString()
 
-                val result = engine.search(query.trim())
+                val query = searchBar.text.toString().trim()
+                val result = engine.search(query)
 
-                if (result != null) {
-                    Toast.makeText(context, result, Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(context, "No definition found", Toast.LENGTH_SHORT).show()
-                }
+                // Show result
+                definitionView.text = result ?: "No definition found"
 
-                val imm = context?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+                // Hide keyboard
+                val imm = context?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
+                        as? android.view.inputmethod.InputMethodManager
                 imm?.hideSoftInputFromWindow(v.windowToken, 0)
 
                 true
@@ -104,6 +112,8 @@ class DictionaryFragment : Fragment() {
                 false
             }
         }
+
+
 
         searchBar.addTextChangedListener(object : android.text.TextWatcher {
 
@@ -131,7 +141,7 @@ class DictionaryFragment : Fragment() {
 
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
-    }   // ← THIS WAS THE MISSING BRACE
+    }
 
     private fun getInstalledLanguages(): List<TileItem> {
         return listOf(

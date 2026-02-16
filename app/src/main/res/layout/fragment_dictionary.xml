@@ -138,6 +138,7 @@
                 android:importantForAutofill="no"
                 tools:ignore="TextFields,VisualLintTextFieldSize"/>
 
+
             <ImageButton
                 android:id="@+id/camera_button"
                 android:layout_width="48dp"
@@ -149,6 +150,5 @@
                 app:tint="#FFFFFF" />
 
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

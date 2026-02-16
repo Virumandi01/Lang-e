@@ -25,4 +25,5 @@
     <string name="data_mgmt_header">Data Management</string>
     <string name="clear_chat_history">Clear Chat History</string>
     <string name="about_version">Version 1.0 • Built with Gemini 3</string>
+    <string name="search_a_word_to_see_definition">Search a word to see definition</string>
 </resources>
