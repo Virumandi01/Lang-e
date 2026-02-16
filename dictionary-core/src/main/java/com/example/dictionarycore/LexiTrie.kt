@@ -1,9 +1,5 @@
 package com.example.dictionarycore
 
-/**
- * Fast word lookup structure
- * Time complexity: O(length of word)
- */
 class LexiTrie {
 
     private val root = LexiNode()
@@ -30,4 +26,26 @@ class LexiTrie {
 
         return if (node.isWord) node.pointer else null
     }
+
+    /** Get all words starting with prefix */
+    fun startsWith(prefix: String): List<String> {
+        var node = root
+
+        for (char in prefix.lowercase()) {
+            node = node.children[char] ?: return emptyList()
+        }
+
+        val results = mutableListOf<String>()
+        collectWords(node, prefix.lowercase(), results)
+        return results
+    }
+
+    private fun collectWords(node: LexiNode, current: String, results: MutableList<String>) {
+        if (node.isWord) results.add(current)
+
+        for ((char, child) in node.children) {
+            collectWords(child, current + char, results)
+        }
+    }
+
 }

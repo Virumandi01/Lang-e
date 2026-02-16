@@ -25,10 +25,9 @@ class DictionaryFragment : Fragment() {
         }
     }
 
-    private val  engine = DictionaryEngine()
 
+    private val engine = DictionaryEngine()
 
-    // New: Launcher to handle the camera permission request
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -39,20 +38,16 @@ class DictionaryFragment : Fragment() {
         }
     }
 
-
-
-        override fun onCreateView(
+    override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_dictionary, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Updated: Camera button now checks for permission before opening
         view.findViewById<ImageButton>(R.id.camera_button).setOnClickListener {
             if (androidx.core.content.ContextCompat.checkSelfPermission(
                     requireContext(), android.Manifest.permission.CAMERA
@@ -63,39 +58,30 @@ class DictionaryFragment : Fragment() {
             }
         }
 
-        // 1. Setup "Installed Languages" (Grid Layout)
         val rvLanguages = view.findViewById<RecyclerView>(R.id.rv_languages)
-        rvLanguages.layoutManager = GridLayoutManager(context, 3) // 3 tiles wide
+        rvLanguages.layoutManager = GridLayoutManager(context, 3)
         rvLanguages.adapter = TileAdapter(getInstalledLanguages()) { item ->
-            // What happens when you click a language
             Toast.makeText(context, "Clicked: ${item.title}", Toast.LENGTH_SHORT).show()
         }
 
-        // 2. Setup "Trending Libraries" (Horizontal Scroll)
-        // Note: This is currently hidden in XML until we add the Internet Logic later
         val rvTrending = view.findViewById<RecyclerView>(R.id.rv_ai_trending)
         rvTrending.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         rvTrending.adapter = TileAdapter(getTrendingLibraries()) { item ->
             Toast.makeText(context, "AI Loading: ${item.title}", Toast.LENGTH_SHORT).show()
         }
 
-        // 3. Setup "Playlists & Favorites" (Horizontal or Grid)
         val rvPlaylists = view.findViewById<RecyclerView>(R.id.rv_playlists)
         rvPlaylists.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         rvPlaylists.adapter = TileAdapter(getPlaylists()) { item ->
             Toast.makeText(context, "Opening Playlist: ${item.title}", Toast.LENGTH_SHORT).show()
         }
 
-        // 4. Setup "Downloadable" (Grid)
         val rvDownloadable = view.findViewById<RecyclerView>(R.id.rv_downloadable)
         rvDownloadable.layoutManager = GridLayoutManager(context, 3)
         rvDownloadable.adapter = TileAdapter(getDownloadableLanguages()) { item ->
             Toast.makeText(context, "Download started: ${item.title}", Toast.LENGTH_SHORT).show()
         }
 
-        // ... (Your RecyclerView code is here) ...
-
-        // 5. Setup Search Bar Logic
         val searchBar = view.findViewById<EditText>(R.id.search_bar)
 
         searchBar.setOnEditorActionListener { v, actionId, _ ->
@@ -110,49 +96,42 @@ class DictionaryFragment : Fragment() {
                     Toast.makeText(context, "No definition found", Toast.LENGTH_SHORT).show()
                 }
 
-
-
-                // Hide the keyboard after searching
                 val imm = context?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
                 imm?.hideSoftInputFromWindow(v.windowToken, 0)
 
-                true // Return true to say "we handled it"
+                true
             } else {
                 false
             }
         }
 
-        // 6. Real-time Filtering Logic
         searchBar.addTextChangedListener(object : android.text.TextWatcher {
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val query = s.toString().lowercase()
-                val filteredList = getInstalledLanguages().filter {
-                    it.title.lowercase().contains(query)
+                val query = s.toString().trim()
+
+                if (query.isEmpty()) {
+                    rvLanguages.adapter = TileAdapter(emptyList()) { }
+                    return
                 }
 
-                // Update the adapter
-                rvLanguages.adapter = TileAdapter(filteredList) { item ->
-                    Toast.makeText(context, "Clicked: ${item.title}", Toast.LENGTH_SHORT).show()
+                val suggestions = engine.suggest(query)
+
+                val tiles = suggestions.map { word ->
+                    TileItem(word, "WORD", "RESULT")
                 }
 
-                // IMPROVED: Safely find the view from the fragment's main view
-                val noResultsView = getView()?.findViewById<android.widget.TextView>(R.id.tv_no_results)
-
-                if (filteredList.isEmpty() && query.isNotEmpty()) {
-                    noResultsView?.visibility = View.VISIBLE
-                    noResultsView?.text = getString(R.string.no_results_found, query)
-                } else {
-                    noResultsView?.visibility = View.GONE
+                rvLanguages.adapter = TileAdapter(tiles) { item ->
+                    searchBar.setText(item.title)
+                    searchBar.setSelection(item.title.length)
                 }
             }
 
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
-    }
-
-    // --- FAKE DATA GENERATORS (Updated with your 5 core languages) ---
+    }   // ← THIS WAS THE MISSING BRACE
 
     private fun getInstalledLanguages(): List<TileItem> {
         return listOf(
@@ -195,7 +174,6 @@ class DictionaryFragment : Fragment() {
 
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
-                // This is the text the AI "read" from the photo
                 val resultText = visionText.text
                 if (resultText.isNotEmpty()) {
                     view?.findViewById<EditText>(R.id.search_bar)?.setText(resultText)
@@ -206,4 +184,6 @@ class DictionaryFragment : Fragment() {
                 Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
+
 }

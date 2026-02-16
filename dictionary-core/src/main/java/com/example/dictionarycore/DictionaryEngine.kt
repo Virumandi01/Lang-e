@@ -27,4 +27,9 @@ class DictionaryEngine {
         val pointer = trie.search(word) ?: return null
         return meanings[pointer]
     }
+
+    fun suggest(prefix: String): List<String> {
+        return trie.startsWith(prefix)
+    }
+
 }
