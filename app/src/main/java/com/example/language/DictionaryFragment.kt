@@ -1,12 +1,15 @@
 package com.example.language
 
+import com.example.dictionarycore.DictionaryEngine
 import android.graphics.Bitmap
-import androidx.activity.result.contract.ActivityResultContracts
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,8 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import android.widget.EditText
-import android.widget.ImageButton
 
 class DictionaryFragment : Fragment() {
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
@@ -23,6 +24,9 @@ class DictionaryFragment : Fragment() {
             recognizeTextFromImage(bitmap)
         }
     }
+
+    private val  engine = DictionaryEngine()
+
 
     // New: Launcher to handle the camera permission request
     private val requestPermissionLauncher = registerForActivityResult(
@@ -35,7 +39,9 @@ class DictionaryFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
+
+
+        override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
@@ -96,8 +102,15 @@ class DictionaryFragment : Fragment() {
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
                 val query = searchBar.text.toString()
 
-                // Perform the search
-                Toast.makeText(context, "Searching for: $query", Toast.LENGTH_SHORT).show()
+                val result = engine.search(query.trim())
+
+                if (result != null) {
+                    Toast.makeText(context, result, Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(context, "No definition found", Toast.LENGTH_SHORT).show()
+                }
+
+
 
                 // Hide the keyboard after searching
                 val imm = context?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
