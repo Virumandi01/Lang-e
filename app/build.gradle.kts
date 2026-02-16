@@ -1,8 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.google.devtools.ksp") version "1.9.22-1.0.17"
-}
 
+}
 android {
     namespace = "com.example.language"
     compileSdk {
@@ -51,13 +50,7 @@ dependencies{
     implementation("io.noties.markwon:core:4.6.2")
     implementation("io.noties.markwon:syntax-highlight:4.6.2")
     implementation("io.noties.markwon:linkify:4.6.2")
-// Room Database (For Offline Dictionary)
-    val room_version = "2.6.1"
-    implementation("androidx.room:room-runtime:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
 
-    // CHANGED: Use 'ksp' here. It works perfectly with new Android Studio.
-    ksp("androidx.room:room-compiler:$room_version")
 
 }
 configurations.all {

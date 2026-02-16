@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Language"
 include(":app")
- 
+include(":dictionary-core")
